@@ -16,38 +16,41 @@ namespace PhAirHockey
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class AirHockeyGame : Microsoft.Xna.Framework.Game
     {
-        bool _flicked = false;
+        private bool _flicked = false;
 
-        GraphicsDeviceManager _graphics;
-        SpriteBatch _spriteBatch;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
 
-        Texture2D _pitchTexture;
-        Vector2 _pitchPosition;
-        float _pitchScale = 1f;
+        private int _player1Score;
+        private int _player2Score;
 
-        Vector2 _puckPosition;
-        Vector2 _player1Position;
-        Vector2 _player2Position;        
-        
-        Texture2D _puckTexture;
-        Texture2D _player1Texture;
-        Texture2D _player2Texture;
+        private Texture2D _pitchTexture;
+        private Vector2 _pitchPosition;
+        private float _pitchScale = 1f;
 
-        Vector2 _player1Velocity;
-        Vector2 _player2Velocity;
-        Vector2 _puckVelocity;
-        Vector2 _puckFriction;
+        private Vector2 _puckPosition;
+        private Vector2 _player1Position;
+        private Vector2 _player2Position;
 
-        float _puckScale = 1f;
-        float _p1Scale = 1f;
-        float _p2Scale = 1f;
+        private Texture2D _puckTexture;
+        private Texture2D _player1Texture;
+        private Texture2D _player2Texture;
 
-        Vector2 _lastCollisionPointHandled;
-        bool withinCollisionZone = false;
+        private Vector2 _player1Velocity;
+        private Vector2 _player2Velocity;
+        private Vector2 _puckVelocity;
+        private Vector2 _puckFriction;
 
-        public Game1()
+        private float _puckScale = 1f;
+        private float _p1Scale = 1f;
+        private float _p2Scale = 1f;
+
+        private Vector2 _lastCollisionPointHandled;
+        private bool withinCollisionZone = false;
+
+        public AirHockeyGame()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -291,49 +294,40 @@ namespace PhAirHockey
                         _player1Velocity = touchLoc.Position - _player1Position;
                         _player1Velocity = _player1Velocity * 0.01f;
 
-                        if (_player1Velocity.X > 0)
-                        {
-                            _player1Velocity.X = Math.Min(_player1Velocity.X, 1);
-                        }
-                        else 
-                        {
-                            _player1Velocity.X = Math.Max(_player1Velocity.X, -1);
-                        }
-
-                        if (_player1Velocity.Y > 0)
-                        {
-                            _player1Velocity.Y = Math.Min(_player1Velocity.Y, 1);
-                        }
-                        else
-                        {
-                            _player1Velocity.Y = Math.Max(_player1Velocity.Y, -1);
-                        }
+                        _player1Velocity = RestrictMaxPlayerVelocity(_player1Velocity);
                     }
                     else
                     {
                         _player2Velocity = touchLoc.Position - _player2Position;
                         _player2Velocity = _player2Velocity * 0.01f;
 
-                        if (_player2Velocity.X > 0)
-                        {
-                            _player2Velocity.X = Math.Min(_player2Velocity.X, 1);
-                        }
-                        else
-                        {
-                            _player2Velocity.X = Math.Max(_player2Velocity.X, -1);
-                        }
-
-                        if (_player2Velocity.Y > 0)
-                        {
-                            _player2Velocity.Y = Math.Min(_player2Velocity.Y, 1);
-                        }
-                        else
-                        {
-                            _player2Velocity.Y = Math.Max(_player2Velocity.Y, -1);
-                        }
+                        _player2Velocity = RestrictMaxPlayerVelocity(_player2Velocity);
                     }
                 }
             }
+        }
+
+        private Vector2 RestrictMaxPlayerVelocity(Vector2 playerVelocity)
+        {
+            Vector2 restrictedVelocity = new Vector2();
+            if (playerVelocity.X > 0)
+            {
+                restrictedVelocity.X = Math.Min(playerVelocity.X, 1);
+            }
+            else
+            {
+                restrictedVelocity.X = Math.Max(playerVelocity.X, -1);
+            }
+
+            if (playerVelocity.Y > 0)
+            {
+                restrictedVelocity.Y = Math.Min(playerVelocity.Y, 1);
+            }
+            else
+            {
+                restrictedVelocity.Y = Math.Max(playerVelocity.Y, -1);
+            }
+            return restrictedVelocity;
         }
 
 

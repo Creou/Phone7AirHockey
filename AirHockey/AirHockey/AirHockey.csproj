@@ -85,6 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AirHockeyGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\AppManifest.xml">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
@@ -93,7 +94,6 @@
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </None>
     <Compile Include="Program.cs" />
-    <Compile Include="Game1.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -103,8 +103,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PhAirHockeyContent\PhAirHockeyContent.contentproj">
-      <Name>PhAirHockeyContent</Name>
+    <ProjectReference Include="..\AirHockeyContent\AirHockeyContent.contentproj">
+      <Project>{80356985-8947-4029-B1BE-18FA18FEE1DC}</Project>
+      <Name>AirHockeyContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
     </ProjectReference>
   </ItemGroup>

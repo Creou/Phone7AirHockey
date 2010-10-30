@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhAirHockey", "PhAirHockey\PhAirHockey\PhAirHockey.csproj", "{AD89E436-7C60-4B23-8999-621F9DF98A3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirHockey", "AirHockey\AirHockey\AirHockey.csproj", "{AD89E436-7C60-4B23-8999-621F9DF98A3E}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "PhAirHockeyContent", "PhAirHockey\PhAirHockeyContent\PhAirHockeyContent.contentproj", "{80356985-8947-4029-B1BE-18FA18FEE1DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirHockeyContent", "AirHockey\AirHockeyContent\AirHockeyContent.contentproj", "{80356985-8947-4029-B1BE-18FA18FEE1DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
