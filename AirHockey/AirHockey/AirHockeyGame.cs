@@ -26,7 +26,7 @@ namespace PhAirHockey
     {
         //private bool _flicked = false;
 
-        
+        private int _playTo = 3;
 
         private SpriteFont _scoreFont;
         private SpriteFont _messageFont;
@@ -73,8 +73,6 @@ namespace PhAirHockey
         private Vector2 _lastCollisionPointHandled;
         private bool withinCollisionZone = false;
 
-        private DateTime _lastGoalTime;
-
         public AirHockeyGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -102,8 +100,8 @@ namespace PhAirHockey
 
             _player1ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 - 10, 0);
             _player2ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 + 10, 0);
-            _messageP1Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 30, GraphicsDevice.Viewport.Height / 2);
-            _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 - 30, GraphicsDevice.Viewport.Height / 2);
+            _messageP1Position = new Vector2(GraphicsDevice.Viewport.Width / 2 - 50, GraphicsDevice.Viewport.Height / 2);
+            _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 50, GraphicsDevice.Viewport.Height / 2);
             
             InitialisePuckToStartingConditions();
 
@@ -188,12 +186,41 @@ namespace PhAirHockey
                 _p2ScoreOpacity -= 0.01f;
             }
 
-            
+            CheckForWin();
 
             base.Update(gameTime);
         }
 
+        private void CheckForWin()
+        {
+            if (_player1Score >= _playTo)
+            {
+                GameOver(ActionPlayer.Player1);
+            }
+            else if (_player2Score >= _playTo)
+            {
+                GameOver(ActionPlayer.Player2);
+            }
+        }
 
+        private void GameOver(ActionPlayer actionPlayer)
+        {
+            switch (actionPlayer)
+            {
+                case ActionPlayer.Player1:
+                    _messageP1 = "WIN !";
+                    _messageP2 = "LOSE !";
+                    break;
+                case ActionPlayer.Player2:
+                    _messageP2 = "WIN !";
+                    _messageP1 = "LOSE !";
+                    break;
+                default:
+                    break;
+            }
+
+            _messageOpacity = 1;
+        }
 
         private void HandlePuckPlayerCollision(Vector2 playerPosition, Vector2 playerVelocity)
         {
@@ -422,7 +449,7 @@ namespace PhAirHockey
             DrawScores();
 
             Vector2 messageP1Size = _messageFont.MeasureString(_messageP1);
-            Vector2 messageP2Size = _messageFont.MeasureString(_messageP1);
+            Vector2 messageP2Size = _messageFont.MeasureString(_messageP2);
 
             _spriteBatch.DrawString(_messageFont, _messageP1, _messageP1Position, Color.White * _messageOpacity, MathHelper.ToRadians(90), new Vector2(messageP1Size.X / 2, messageP1Size.Y / 2), 1, SpriteEffects.None, 0);
             _spriteBatch.DrawString(_messageFont, _messageP2, _messageP2Position, Color.White * _messageOpacity, MathHelper.ToRadians(270), new Vector2(messageP2Size.X / 2, messageP2Size.Y / 2), 1, SpriteEffects.None, 0);
