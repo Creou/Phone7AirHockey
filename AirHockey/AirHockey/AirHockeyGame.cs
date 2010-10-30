@@ -28,6 +28,8 @@ namespace PhAirHockey
 
         private int _playTo = 3;
 
+        List<SoundEffect> _bounceEffects;
+
         private SpriteFont _scoreFont;
         private SpriteFont _messageFont;
 
@@ -44,9 +46,9 @@ namespace PhAirHockey
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private int _player1Score = 1;
+        private int _player1Score = 0;
         private float _p1ScoreOpacity = 0.8f;
-        private int _player2Score = 2;
+        private int _player2Score = 0;
         private float _p2ScoreOpacity = 0.8f;
 
         private Texture2D _pitchTexture;
@@ -133,6 +135,17 @@ namespace PhAirHockey
             _player1Texture = Content.Load<Texture2D>("Player1");
             _player2Texture = Content.Load<Texture2D>("Player2");
 
+            _bounceEffects = new List<SoundEffect>();
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce1"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce2"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce3"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce4"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce5"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce6"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce7"));
+            _bounceEffects.Add(Content.Load<SoundEffect>("Bounce8"));
+
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -165,7 +178,6 @@ namespace PhAirHockey
             HandleInputMultiTouch();
             HandlePuckMovement(gameTime);
             HandlePlayerMovement(gameTime);
-            Debug.WriteLine(gameTime.ElapsedGameTime);
 
             HandlePuckWallCollision();
             HandlePuckPlayerCollision(_player1Position, _player1Velocity);
@@ -239,6 +251,8 @@ namespace PhAirHockey
 
             if (distanceToPlayer.Length() < (_player1Texture.Width))
             {
+                PlayPuckCollisionEffect();
+
                 _lastCollisionPointHandled = playerPosition;
                 withinCollisionZone = true;
 
@@ -320,10 +334,12 @@ namespace PhAirHockey
 
             if (_puckPosition.Y > (GraphicsDevice.Viewport.Height - (_puckTexture.Height / 2)) && _puckVelocity.Y > 0)
             {
+                PlayPuckCollisionEffect();
                 _puckVelocity.Y *= -1;
             }
             if (_puckPosition.Y < 0 + (_puckTexture.Height / 2) && _puckVelocity.Y < 0)
             {
+                PlayPuckCollisionEffect();
                 _puckVelocity.Y *= -1;
             }
             if (_puckPosition.X > (GraphicsDevice.Viewport.Width - (_puckTexture.Width / 2)) && _puckVelocity.X > 0)
@@ -334,6 +350,7 @@ namespace PhAirHockey
                 }
                 else
                 {
+                    PlayPuckCollisionEffect();
                     _puckVelocity.X *= -1;
                 }
             }
@@ -345,9 +362,18 @@ namespace PhAirHockey
                 }
                 else
                 {
+                    PlayPuckCollisionEffect();
                     _puckVelocity.X *= -1;
                 }
             }
+        }
+
+        private void PlayPuckCollisionEffect()
+        {
+            Random rGen = new Random();
+            int collisionEffectIndex = rGen.Next(0, _bounceEffects.Count);
+            Debug.WriteLine("Played collision effect {0}", collisionEffectIndex);
+            _bounceEffects[collisionEffectIndex].Play();
         }
 
         private void GoalScored(ActionPlayer actionPlayer)
