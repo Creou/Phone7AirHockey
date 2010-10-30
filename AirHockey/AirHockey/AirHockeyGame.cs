@@ -249,7 +249,7 @@ namespace PhAirHockey
 
             Vector2 distanceToPlayer = (_puckPosition - playerPosition);
 
-            if (distanceToPlayer.Length() < (_player1Texture.Width))
+            if (distanceToPlayer.Length() < (_player1Texture.Width/2)+(_puckTexture.Width/2))
             {
                 PlayPuckCollisionEffect();
 
@@ -402,8 +402,23 @@ namespace PhAirHockey
 
         private void ApplyPuckFriction()
         {
-            if (_puckVelocity.X < 0) { _puckVelocity.X += _puckFriction.X; } else { _puckVelocity.X -= _puckFriction.X; }
-            if (_puckVelocity.Y < 0) { _puckVelocity.Y += _puckFriction.Y; } else { _puckVelocity.Y -= _puckFriction.Y; }
+            if (_puckVelocity.X < 0)
+            {
+                _puckVelocity.X += _puckFriction.X;
+            }
+            else if (_puckVelocity.X > 0)
+            {
+                _puckVelocity.X -= _puckFriction.X;
+            }
+
+            if (_puckVelocity.Y < 0)
+            {
+                _puckVelocity.Y += _puckFriction.Y;
+            }
+            else if (_puckVelocity.Y > 0)
+            {
+                _puckVelocity.Y -= _puckFriction.Y;
+            }
         }
 
         private void HandleInputMultiTouch()
