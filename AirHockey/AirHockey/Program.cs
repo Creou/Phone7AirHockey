@@ -1,6 +1,6 @@
 using System;
 
-namespace PhAirHockey
+namespace AirHockey
 {
 #if WINDOWS || XBOX
     static class Program

@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
 
-namespace PhAirHockey
+namespace AirHockey
 {
     public enum ActionPlayer
     {
