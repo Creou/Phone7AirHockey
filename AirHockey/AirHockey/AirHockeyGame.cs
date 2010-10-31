@@ -19,11 +19,15 @@ namespace AirHockey
         Player2 = 2,
     }
 
+    public enum GameMode { Menu = 0, Game = 1 }
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
     public class AirHockeyGame : Microsoft.Xna.Framework.Game
     {
+        public GameMode GameMode { get; set; }
+
         //private bool _flicked = false;
 
         private int _playTo = 3;
@@ -94,7 +98,12 @@ namespace AirHockey
         {
             // TODO: Add your initialization logic here
 
+            var m = new MainMenu(this);
+            this.Components.Add(m);
+
             base.Initialize();
+
+            GameMode = AirHockey.GameMode.Menu;
             
             _puckFriction = new Vector2(0.005f, 0.005f);
 
@@ -481,7 +490,6 @@ namespace AirHockey
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // Draw the background texture
             _spriteBatch.Begin();
 
             DrawPitch();
