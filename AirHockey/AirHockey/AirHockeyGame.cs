@@ -79,6 +79,8 @@ namespace AirHockey
         private Vector2 _lastCollisionPointHandled;
         private bool withinCollisionZone = false;
 
+        private float _gameOpacity = 0;
+
         public AirHockeyGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -107,18 +109,29 @@ namespace AirHockey
             
             _puckFriction = new Vector2(0.005f, 0.005f);
 
-            _pitchPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-
             _player1ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 - 10, 0);
             _player2ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 + 10, 0);
             _messageP1Position = new Vector2(GraphicsDevice.Viewport.Width / 2 - 50, GraphicsDevice.Viewport.Height / 2);
             _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 50, GraphicsDevice.Viewport.Height / 2);
-            
+
+            InitialiseToNewGameState();
+        }
+
+        internal void NewGame()
+        {
+            InitialiseToNewGameState();
+            _gameOpacity = 0;
+            GameMode = AirHockey.GameMode.Game;
+        }
+
+        private void InitialiseToNewGameState()
+        {
             InitialisePuckToStartingConditions();
 
             _player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
             _player2Position = new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2);
-            
+
+            _pitchPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
         }
 
         private void InitialisePuckToStartingConditions()
@@ -154,7 +167,6 @@ namespace AirHockey
             _bounceEffects.Add(Content.Load<SoundEffect>("Bounce7"));
             _bounceEffects.Add(Content.Load<SoundEffect>("Bounce8"));
 
-
             // TODO: use this.Content to load your game content here
         }
 
@@ -178,36 +190,38 @@ namespace AirHockey
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            //if (gameTime.TotalGameTime > new TimeSpan(0, 0, 3) && !_flicked)
-            //{
-            //    _puckVelocity = new Vector2(1f, 1f);
-            //    _flicked = true;
-            //}
-
-            HandleInputMultiTouch();
-            HandlePuckMovement(gameTime);
-            HandlePlayerMovement(gameTime);
-
-            HandlePuckWallCollision();
-            HandlePuckPlayerCollision(_player1Position, _player1Velocity);
-            HandlePuckPlayerCollision(_player2Position, _player2Velocity);
-
-            ApplyPuckFriction();
-
-            if (_messageOpacity > 0)
+            if (GameMode == AirHockey.GameMode.Game)
             {
-                _messageOpacity -= 0.01f;
-            }
-            if (_p1ScoreOpacity > 0.5)
-            {
-                _p1ScoreOpacity -= 0.01f;
-            }
-            if (_p2ScoreOpacity > 0.5)
-            {
-                _p2ScoreOpacity -= 0.01f;
-            }
+                if (_gameOpacity < 1) 
+                {
+                    _gameOpacity += 0.05f;
+                }
 
-            CheckForWin();
+                HandlePlayerInput();
+                HandlePuckMovement(gameTime);
+                HandlePlayerMovement(gameTime);
+
+                HandlePuckWallCollision();
+                HandlePuckPlayerCollision(_player1Position, _player1Velocity);
+                HandlePuckPlayerCollision(_player2Position, _player2Velocity);
+
+                ApplyPuckFriction();
+
+                if (_messageOpacity > 0)
+                {
+                    _messageOpacity -= 0.01f;
+                }
+                if (_p1ScoreOpacity > 0.5)
+                {
+                    _p1ScoreOpacity -= 0.01f;
+                }
+                if (_p2ScoreOpacity > 0.5)
+                {
+                    _p2ScoreOpacity -= 0.01f;
+                }
+
+                CheckForWin();
+            }
 
             base.Update(gameTime);
         }
@@ -430,7 +444,7 @@ namespace AirHockey
             }
         }
 
-        private void HandleInputMultiTouch()
+        private void HandlePlayerInput()
         {
             TouchCollection touchCollection = TouchPanel.GetState();
 
@@ -490,47 +504,54 @@ namespace AirHockey
         {
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin();
+            if (GameMode == AirHockey.GameMode.Game)
+            {
+                _spriteBatch.Begin();
 
-            DrawPitch();
-            DrawPlayers();
-            DrawPuck();
-            DrawScores();
+                DrawPitch();
+                DrawPlayers();
+                DrawPuck();
+                DrawScores();
+                DrawMessages();
 
+                _spriteBatch.End();
+            }
+
+            base.Draw(gameTime);
+        }
+
+        private void DrawMessages()
+        {
             Vector2 messageP1Size = _messageFont.MeasureString(_messageP1);
             Vector2 messageP2Size = _messageFont.MeasureString(_messageP2);
 
-            _spriteBatch.DrawString(_messageFont, _messageP1, _messageP1Position, Color.White * _messageOpacity, MathHelper.ToRadians(90), new Vector2(messageP1Size.X / 2, messageP1Size.Y / 2), 1, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(_messageFont, _messageP2, _messageP2Position, Color.White * _messageOpacity, MathHelper.ToRadians(270), new Vector2(messageP2Size.X / 2, messageP2Size.Y / 2), 1, SpriteEffects.None, 0);
-
-            _spriteBatch.End();
-
-            base.Draw(gameTime);
+            _spriteBatch.DrawString(_messageFont, _messageP1, _messageP1Position, Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(90), new Vector2(messageP1Size.X / 2, messageP1Size.Y / 2), 1, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_messageFont, _messageP2, _messageP2Position, Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(270), new Vector2(messageP2Size.X / 2, messageP2Size.Y / 2), 1, SpriteEffects.None, 0);
         }
 
         private void DrawScores()
         {
             Vector2 size = _scoreFont.MeasureString(_player1Score.ToString());
             Vector2 player1ActualScorePosition = new Vector2(_player1ScorePosition.X - size.X, _player1ScorePosition.Y);
-            _spriteBatch.DrawString(_scoreFont, _player1Score.ToString(), player1ActualScorePosition, Color.White * _p1ScoreOpacity);
+            _spriteBatch.DrawString(_scoreFont, _player1Score.ToString(), player1ActualScorePosition, Color.White * _p1ScoreOpacity * _gameOpacity);
 
-            _spriteBatch.DrawString(_scoreFont, _player2Score.ToString(), _player2ScorePosition, Color.White * _p2ScoreOpacity);            
+            _spriteBatch.DrawString(_scoreFont, _player2Score.ToString(), _player2ScorePosition, Color.White * _p2ScoreOpacity * _gameOpacity);            
         }
 
         private void DrawPitch()
         {
-            _spriteBatch.Draw(_pitchTexture, _pitchPosition, null, Color.White, MathHelper.ToRadians(90), new Vector2(_pitchTexture.Width / 2, _pitchTexture.Height / 2), _pitchScale, SpriteEffects.None, 0);
+            _spriteBatch.Draw(_pitchTexture, _pitchPosition, null, Color.White * _gameOpacity, MathHelper.ToRadians(90), new Vector2(_pitchTexture.Width / 2, _pitchTexture.Height / 2), _pitchScale, SpriteEffects.None, 0);
         }
 
         private void DrawPuck()
         {
-            _spriteBatch.Draw(_puckTexture, _puckPosition, null, Color.White, 0, new Vector2(_puckTexture.Width / 2, _puckTexture.Height / 2), _puckScale, SpriteEffects.None, 0);            
+            _spriteBatch.Draw(_puckTexture, _puckPosition, null, Color.White * _gameOpacity, 0, new Vector2(_puckTexture.Width / 2, _puckTexture.Height / 2), _puckScale, SpriteEffects.None, 0);            
         }
 
         private void DrawPlayers()
         {
-            _spriteBatch.Draw(_player1Texture, _player1Position, null, Color.White, 0, new Vector2(_player1Texture.Width / 2, _player1Texture.Height / 2), _p1Scale, SpriteEffects.None, 0);
-            _spriteBatch.Draw(_player2Texture, _player2Position, null, Color.White, 0, new Vector2(_player2Texture.Width / 2, _player2Texture.Height / 2), _p2Scale, SpriteEffects.None, 0);
+            _spriteBatch.Draw(_player1Texture, _player1Position, null, Color.White * _gameOpacity, 0, new Vector2(_player1Texture.Width / 2, _player1Texture.Height / 2), _p1Scale, SpriteEffects.None, 0);
+            _spriteBatch.Draw(_player2Texture, _player2Position, null, Color.White * _gameOpacity, 0, new Vector2(_player2Texture.Width / 2, _player2Texture.Height / 2), _p2Scale, SpriteEffects.None, 0);
         }
     }
 }
