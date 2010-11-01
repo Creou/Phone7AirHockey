@@ -72,14 +72,24 @@ namespace AirHockey
 
         private void HandleMenuStateChange()
         {
-            if (_menuStateChanging && _menuOpacity > 0)
+            if (_menuStateChanging && _targetStateChange == GameMode.Game && this.AHGame.GameMode != GameMode.Game)
             {
-                _menuOpacity -= 0.05f;
+                if (_menuOpacity > 0)
+                {
+                    _menuOpacity -= 0.05f;
+                }
+                else if (_menuOpacity <= 0)
+                {
+                    _menuStateChanging = false;
+                    this.AHGame.NewGame();
+                }
             }
-            else if (_menuStateChanging && _menuOpacity <= 0)
+            else if (this.AHGame.GameMode == GameMode.Menu)
             {
-                _menuStateChanging = false;
-                this.AHGame.NewGame();
+                if (_menuOpacity < 1)
+                {
+                    _menuOpacity += 0.05f;
+                }
             }
         }
 

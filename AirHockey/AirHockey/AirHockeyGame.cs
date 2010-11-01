@@ -50,9 +50,9 @@ namespace AirHockey
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private int _player1Score = 0;
+        private int _player1Score;
         private float _p1ScoreOpacity = 0.8f;
-        private int _player2Score = 0;
+        private int _player2Score;
         private float _p2ScoreOpacity = 0.8f;
 
         private Texture2D _pitchTexture;
@@ -111,8 +111,8 @@ namespace AirHockey
 
             _player1ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 - 10, 0);
             _player2ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 + 10, 0);
-            _messageP1Position = new Vector2(GraphicsDevice.Viewport.Width / 2 - 50, GraphicsDevice.Viewport.Height / 2);
-            _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 50, GraphicsDevice.Viewport.Height / 2);
+            _messageP1Position = new Vector2(GraphicsDevice.Viewport.Width / 2 - 100, GraphicsDevice.Viewport.Height / 2);
+            _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 100, GraphicsDevice.Viewport.Height / 2);
 
             InitialiseToNewGameState();
         }
@@ -126,6 +126,11 @@ namespace AirHockey
 
         private void InitialiseToNewGameState()
         {
+            _gameOver = false;
+
+            _player1Score = 0;
+            _player2Score = 0;
+
             InitialisePuckToStartingConditions();
 
             _player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
@@ -187,14 +192,36 @@ namespace AirHockey
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            ButtonState backButton = GamePad.GetState(PlayerIndex.One).Buttons.Back;
+            if (backButton == ButtonState.Pressed)
+            {
+                if (GameMode == AirHockey.GameMode.Menu)
+                {
+                    this.Exit();
+                }
+                else if (GameMode == AirHockey.GameMode.Game) 
+                {
+                    _gameOver = true;
+                    _gameOverTime = gameTime.TotalGameTime - new TimeSpan(0, 0, 2);
+                }
+            }
 
             if (GameMode == AirHockey.GameMode.Game)
             {
-                if (_gameOpacity < 1) 
+                if (!_gameOver && _gameOpacity < 1)
                 {
                     _gameOpacity += 0.05f;
+                }
+                else if (_gameOver && (gameTime.TotalGameTime - _gameOverTime) > new TimeSpan(0,0,2))
+                {
+                    if (_gameOpacity > 0)
+                    {
+                        _gameOpacity -= 0.05f;
+                    }
+                    else 
+                    {
+                        GameMode = AirHockey.GameMode.Menu;
+                    }
                 }
 
                 HandlePlayerInput();
@@ -220,25 +247,31 @@ namespace AirHockey
                     _p2ScoreOpacity -= 0.01f;
                 }
 
-                CheckForWin();
+                CheckForWin(gameTime);
             }
 
             base.Update(gameTime);
         }
 
-        private void CheckForWin()
+        private void CheckForWin(GameTime gameTime)
         {
-            if (_player1Score >= _playTo)
+            if (!_gameOver)
             {
-                GameOver(ActionPlayer.Player1);
-            }
-            else if (_player2Score >= _playTo)
-            {
-                GameOver(ActionPlayer.Player2);
+                if (_player1Score >= _playTo)
+                {
+                    GameOver(ActionPlayer.Player1, gameTime);
+                }
+                else if (_player2Score >= _playTo)
+                {
+                    GameOver(ActionPlayer.Player2, gameTime);
+                }
             }
         }
 
-        private void GameOver(ActionPlayer actionPlayer)
+        private bool _gameOver;
+        private TimeSpan _gameOverTime;
+
+        private void GameOver(ActionPlayer actionPlayer, GameTime gameTime)
         {
             switch (actionPlayer)
             {
@@ -255,78 +288,82 @@ namespace AirHockey
             }
 
             _messageOpacity = 1;
+            _gameOver = true;
+            _gameOverTime = gameTime.TotalGameTime;
         }
 
         private void HandlePuckPlayerCollision(Vector2 playerPosition, Vector2 playerVelocity)
         {
-
-            if (withinCollisionZone)
+            if (!_gameOver)
             {
-                Vector2 distanceFromLastCollision = (_puckPosition - _lastCollisionPointHandled);
-                if (distanceFromLastCollision.Length() < (_player1Texture.Width))
+                if (withinCollisionZone)
                 {
-                    return;
-                }
-                withinCollisionZone = false;
-            }
-
-            Vector2 distanceToPlayer = (_puckPosition - playerPosition);
-
-            if (distanceToPlayer.Length() < (_player1Texture.Width/2)+(_puckTexture.Width/2))
-            {
-                PlayPuckCollisionEffect();
-
-                _lastCollisionPointHandled = playerPosition;
-                withinCollisionZone = true;
-
-                // Calculate the tangent and normals of the collision plane.
-                Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
-                collisionNormalVector.Normalize();
-
-                Vector2 collisionTangentVector = new Vector2(-collisionNormalVector.Y, collisionNormalVector.X);
-
-                // Calculate prior velocities relative the the collision plane's tangent and normal.
-                float velPuckNormal = Vector2.Dot(collisionNormalVector, _puckVelocity);
-                float velPuckTangent = Vector2.Dot(collisionTangentVector, _puckVelocity);
-                float velPlayerNormal = Vector2.Dot(collisionNormalVector, playerVelocity);
-                float velPlayerTangent = Vector2.Dot(collisionTangentVector, playerVelocity);
-
-                float velPuckTangent_After = velPuckTangent;
-                float velPlayerTangen_After = velPlayerTangent;
-
-                float puckMass = 1;
-                float playerMass = 1000;
-
-                float velPuckNormal_After = ((velPuckNormal * (puckMass - playerMass)) + (2 * playerMass * velPlayerNormal)) / (puckMass + playerMass);
-                float velPlayerNormal_After = ((velPlayerNormal * (playerMass - puckMass)) + (2 * puckMass * velPuckNormal)) / (puckMass + playerMass);
-                //float v2n_a =
-
-                Vector2 vec_velPuckNormal_After = velPuckNormal_After * collisionNormalVector;
-                Vector2 vec_velPuckTangent_After = velPuckTangent_After * collisionTangentVector;
-                Vector2 vec_velPlayerNormal_After = velPlayerNormal_After * collisionNormalVector;
-                Vector2 vec_velPlayerTangen_After = velPlayerTangen_After * collisionTangentVector;
-
-                Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
-                Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
-
-                _puckVelocity = vec_velPuck_After;
-
-                if (_puckVelocity.X > 0)
-                {
-                    _puckVelocity.X = Math.Min(_puckVelocity.X, 1);
-                }
-                else
-                {
-                    _puckVelocity.X = Math.Max(_puckVelocity.X, -1);
+                    Vector2 distanceFromLastCollision = (_puckPosition - _lastCollisionPointHandled);
+                    if (distanceFromLastCollision.Length() < (_player1Texture.Width))
+                    {
+                        return;
+                    }
+                    withinCollisionZone = false;
                 }
 
-                if (_puckVelocity.Y > 0)
+                Vector2 distanceToPlayer = (_puckPosition - playerPosition);
+
+                if (distanceToPlayer.Length() < (_player1Texture.Width / 2) + (_puckTexture.Width / 2))
                 {
-                    _puckVelocity.Y = Math.Min(_puckVelocity.Y, 1);
-                }
-                else
-                {
-                    _puckVelocity.Y = Math.Max(_puckVelocity.Y, -1);
+                    PlayPuckCollisionEffect();
+
+                    _lastCollisionPointHandled = playerPosition;
+                    withinCollisionZone = true;
+
+                    // Calculate the tangent and normals of the collision plane.
+                    Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
+                    collisionNormalVector.Normalize();
+
+                    Vector2 collisionTangentVector = new Vector2(-collisionNormalVector.Y, collisionNormalVector.X);
+
+                    // Calculate prior velocities relative the the collision plane's tangent and normal.
+                    float velPuckNormal = Vector2.Dot(collisionNormalVector, _puckVelocity);
+                    float velPuckTangent = Vector2.Dot(collisionTangentVector, _puckVelocity);
+                    float velPlayerNormal = Vector2.Dot(collisionNormalVector, playerVelocity);
+                    float velPlayerTangent = Vector2.Dot(collisionTangentVector, playerVelocity);
+
+                    float velPuckTangent_After = velPuckTangent;
+                    float velPlayerTangen_After = velPlayerTangent;
+
+                    float puckMass = 1;
+                    float playerMass = 1000;
+
+                    float velPuckNormal_After = ((velPuckNormal * (puckMass - playerMass)) + (2 * playerMass * velPlayerNormal)) / (puckMass + playerMass);
+                    float velPlayerNormal_After = ((velPlayerNormal * (playerMass - puckMass)) + (2 * puckMass * velPuckNormal)) / (puckMass + playerMass);
+                    //float v2n_a =
+
+                    Vector2 vec_velPuckNormal_After = velPuckNormal_After * collisionNormalVector;
+                    Vector2 vec_velPuckTangent_After = velPuckTangent_After * collisionTangentVector;
+                    Vector2 vec_velPlayerNormal_After = velPlayerNormal_After * collisionNormalVector;
+                    Vector2 vec_velPlayerTangen_After = velPlayerTangen_After * collisionTangentVector;
+
+                    Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
+                    Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
+
+                    _puckVelocity = vec_velPuck_After;
+
+                    if (_puckVelocity.X > 0)
+                    {
+                        _puckVelocity.X = Math.Min(_puckVelocity.X, 1);
+                    }
+                    else
+                    {
+                        _puckVelocity.X = Math.Max(_puckVelocity.X, -1);
+                    }
+
+                    if (_puckVelocity.Y > 0)
+                    {
+                        _puckVelocity.Y = Math.Min(_puckVelocity.Y, 1);
+                    }
+                    else
+                    {
+                        _puckVelocity.Y = Math.Max(_puckVelocity.Y, -1);
+                    }
                 }
             }
         }
@@ -401,24 +438,27 @@ namespace AirHockey
 
         private void GoalScored(ActionPlayer actionPlayer)
         {
-            switch (actionPlayer)
+            if (!_gameOver)
             {
-                case ActionPlayer.Player1:
-                    _player1Score++;
-                    _p1ScoreOpacity = 1;
-                    break;
-                case ActionPlayer.Player2:
-                    _player2Score++;
-                    _p2ScoreOpacity = 1;
-                    break;
-                default:
-                    Debug.Assert(false, "Unexpected enumeration value");
-                    break;
-            }
+                switch (actionPlayer)
+                {
+                    case ActionPlayer.Player1:
+                        _player1Score++;
+                        _p1ScoreOpacity = 1;
+                        break;
+                    case ActionPlayer.Player2:
+                        _player2Score++;
+                        _p2ScoreOpacity = 1;
+                        break;
+                    default:
+                        Debug.Assert(false, "Unexpected enumeration value");
+                        break;
+                }
 
-            _messageP1 = "GOAL!";
-            _messageP2 = "GOAL!";
-            _messageOpacity = 1;
+                _messageP1 = "GOAL!";
+                _messageP2 = "GOAL!";
+                _messageOpacity = 1;
+            }
 
             InitialisePuckToStartingConditions();
         }
