@@ -118,7 +118,7 @@ namespace AirHockey
         {
             if (this.AHGame.GameMode == GameMode.Menu)
             {
-                _menuSpriteBatch.Begin();
+                _menuSpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
                 Vector2 menuTextSize = _menuFont.MeasureString(Strings.MainMenu_Title);
                 _menuSpriteBatch.DrawString(_menuFont, Strings.MainMenu_Title, _menuTitlePosition, Color.White * _menuOpacity, MathHelper.ToRadians(270), menuTextSize.OriginVector(), 1, SpriteEffects.None, 0);
@@ -128,6 +128,7 @@ namespace AirHockey
 
                 Vector2 menuOption_2Player_TextSize = _menuFont.MeasureString(Strings.MainMenu_2Player);
                 _menuSpriteBatch.DrawString(_menuFont, Strings.MainMenu_2Player, _menuOption_2Player_Position, Color.White * _menuOpacity, MathHelper.ToRadians(270), menuOption_2Player_TextSize.OriginVector(), 0.8f, SpriteEffects.None, 0);
+
                 _menuSpriteBatch.End();
             }
             

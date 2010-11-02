@@ -54,10 +54,6 @@ namespace AirHockey
         private int _player2Score;
         private float _p2ScoreOpacity = 0.8f;
 
-        private Texture2D _pitchTexture;
-        private Vector2 _pitchPosition;
-        private float _pitchScale = 1f;
-
         private Vector2 _puckPosition;
         private Vector2 _player1Position;
         private Vector2 _player2Position;
@@ -76,6 +72,11 @@ namespace AirHockey
         private float _p2Scale = 1f;
 
         private float _gameOpacity = 0;
+
+        public float GameOpacity
+        {
+            get { return _gameOpacity; }
+        }
 
         public AirHockeyGame()
         {
@@ -96,8 +97,11 @@ namespace AirHockey
         {
             // TODO: Add your initialization logic here
 
-            var m = new MainMenu(this);
-            this.Components.Add(m);
+            var menu = new MainMenu(this);
+            this.Components.Add(menu);
+
+            var pitch = new Pitch(this);
+            this.Components.Add(pitch);
 
             base.Initialize();
 
@@ -131,8 +135,6 @@ namespace AirHockey
 
             _player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
             _player2Position = new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2);
-
-            _pitchPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
         }
 
         private void InitialisePuckToStartingConditions()
@@ -153,7 +155,6 @@ namespace AirHockey
             _scoreFont = Content.Load<SpriteFont>("ScoreFont");
             _messageFont = Content.Load<SpriteFont>("MessageFont");
 
-            _pitchTexture = Content.Load<Texture2D>("Pitch");
             _puckTexture = Content.Load<Texture2D>("Puck");
             _player1Texture = Content.Load<Texture2D>("Player1");
             _player2Texture = Content.Load<Texture2D>("Player2");
@@ -517,9 +518,8 @@ namespace AirHockey
 
             if (GameMode == AirHockey.GameMode.Game)
             {
-                _spriteBatch.Begin();
+                _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
-                DrawPitch();
                 DrawPlayers();
                 DrawPuck();
                 DrawScores();
@@ -538,6 +538,21 @@ namespace AirHockey
 
             _spriteBatch.DrawString(_messageFont, _messageP1, _messageP1Position, Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(90), new Vector2(messageP1Size.X / 2, messageP1Size.Y / 2), 1, SpriteEffects.None, 0);
             _spriteBatch.DrawString(_messageFont, _messageP2, _messageP2Position, Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(270), new Vector2(messageP2Size.X / 2, messageP2Size.Y / 2), 1, SpriteEffects.None, 0);
+
+            Vector2 win1Size = _messageFont.MeasureString("You have won");
+            Vector2 win2Size = _messageFont.MeasureString("an XBox");
+
+            if (_messageP2 == "WIN !")
+            {
+
+                _spriteBatch.DrawString(_messageFont, "You have won", _messageP2Position + new Vector2(50, 0), Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(270), new Vector2(win1Size.X / 2, win1Size.Y / 2), 1, SpriteEffects.None, 0);
+                _spriteBatch.DrawString(_messageFont, "an XBox", _messageP2Position + new Vector2(100, 0), Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(270), new Vector2(win2Size.X / 2, win2Size.Y / 2), 1, SpriteEffects.None, 0);
+            }
+            else if (_messageP1 == "WIN !")
+            {
+                _spriteBatch.DrawString(_messageFont, "You have won", _messageP1Position - new Vector2(50, 0), Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(90), new Vector2(win1Size.X / 2, win1Size.Y / 2), 1, SpriteEffects.None, 0);
+                _spriteBatch.DrawString(_messageFont, "an XBox", _messageP1Position - new Vector2(100, 0), Color.White * _messageOpacity * _gameOpacity, MathHelper.ToRadians(90), new Vector2(win2Size.X / 2, win2Size.Y / 2), 1, SpriteEffects.None, 0);
+            }
         }
 
         private void DrawScores()
@@ -547,11 +562,6 @@ namespace AirHockey
             _spriteBatch.DrawString(_scoreFont, _player1Score.ToString(), player1ActualScorePosition, Color.White * _p1ScoreOpacity * _gameOpacity);
 
             _spriteBatch.DrawString(_scoreFont, _player2Score.ToString(), _player2ScorePosition, Color.White * _p2ScoreOpacity * _gameOpacity);            
-        }
-
-        private void DrawPitch()
-        {
-            _spriteBatch.Draw(_pitchTexture, _pitchPosition, null, Color.White * _gameOpacity, MathHelper.ToRadians(90), new Vector2(_pitchTexture.Width / 2, _pitchTexture.Height / 2), _pitchScale, SpriteEffects.None, 0);
         }
 
         private void DrawPuck()
