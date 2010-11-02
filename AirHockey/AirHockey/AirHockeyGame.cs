@@ -45,7 +45,6 @@ namespace AirHockey
 
         private Vector2 _player1ScorePosition;
         private Vector2 _player2ScorePosition;
-        
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -75,9 +74,6 @@ namespace AirHockey
         private float _puckScale = 1f;
         private float _p1Scale = 1f;
         private float _p2Scale = 1f;
-
-        private Vector2 _lastCollisionPointHandled;
-        private bool withinCollisionZone = false;
 
         private float _gameOpacity = 0;
 
@@ -296,24 +292,22 @@ namespace AirHockey
         {
             if (!_gameOver)
             {
-                if (withinCollisionZone)
-                {
-                    Vector2 distanceFromLastCollision = (_puckPosition - _lastCollisionPointHandled);
-                    if (distanceFromLastCollision.Length() < (_player1Texture.Width))
-                    {
-                        return;
-                    }
-                    withinCollisionZone = false;
-                }
-
                 Vector2 distanceToPlayer = (_puckPosition - playerPosition);
 
-                if (distanceToPlayer.Length() < (_player1Texture.Width / 2) + (_puckTexture.Width / 2))
+                float collisionDistance = (_player1Texture.Width / 2f) + (_puckTexture.Width / 2f);
+
+                if (distanceToPlayer.Length() < collisionDistance)
                 {
                     PlayPuckCollisionEffect();
 
-                    _lastCollisionPointHandled = playerPosition;
-                    withinCollisionZone = true;
+                    // First move the puck out to the collision point. 
+                    // (This is because sometimes the collision doesn't get
+                    // processed until after the puck has moved inside the 
+                    // player, so what we do is wind back to the point of 
+                    // contact.)
+                    Vector2 normalizedCollisionVector = distanceToPlayer;
+                    normalizedCollisionVector.Normalize();
+                    _puckPosition = playerPosition + (normalizedCollisionVector * collisionDistance);
 
                     // Calculate the tangent and normals of the collision plane.
                     Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
@@ -345,25 +339,12 @@ namespace AirHockey
                     Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
                     Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
 
+                    // Restrict the puck velocity to a max.
+                    if (vec_velPlayer_After.Length() > 1) 
+                    {
+                        vec_velPuck_After.Normalize();
+                    }
                     _puckVelocity = vec_velPuck_After;
-
-                    if (_puckVelocity.X > 0)
-                    {
-                        _puckVelocity.X = Math.Min(_puckVelocity.X, 1);
-                    }
-                    else
-                    {
-                        _puckVelocity.X = Math.Max(_puckVelocity.X, -1);
-                    }
-
-                    if (_puckVelocity.Y > 0)
-                    {
-                        _puckVelocity.Y = Math.Min(_puckVelocity.Y, 1);
-                    }
-                    else
-                    {
-                        _puckVelocity.Y = Math.Max(_puckVelocity.Y, -1);
-                    }
                 }
             }
         }
@@ -515,25 +496,15 @@ namespace AirHockey
 
         private Vector2 RestrictMaxPlayerVelocity(Vector2 playerVelocity)
         {
-            Vector2 restrictedVelocity = new Vector2();
-            if (playerVelocity.X > 0)
+            if (playerVelocity.Length() > 1)
             {
-                restrictedVelocity.X = Math.Min(playerVelocity.X, 1);
+                playerVelocity.Normalize();
+                return playerVelocity;
             }
-            else
+            else 
             {
-                restrictedVelocity.X = Math.Max(playerVelocity.X, -1);
+                return playerVelocity;
             }
-
-            if (playerVelocity.Y > 0)
-            {
-                restrictedVelocity.Y = Math.Min(playerVelocity.Y, 1);
-            }
-            else
-            {
-                restrictedVelocity.Y = Math.Max(playerVelocity.Y, -1);
-            }
-            return restrictedVelocity;
         }
 
         /// <summary>
