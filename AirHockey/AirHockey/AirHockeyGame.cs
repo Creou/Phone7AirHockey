@@ -73,6 +73,7 @@ namespace AirHockey
 
         private Player _player1;
         private Player _player2;
+        private Puck _puck;
 
         private float _puckScale = 1f;
 
@@ -114,10 +115,12 @@ namespace AirHockey
 
             _player1 = new Player(this, PlayerNumber.Player1);
             _player2 = new Player(this, PlayerNumber.Player2);
+            _puck = new Puck(this);
 
             var collideables = new Collection<ICollidable>();
             collideables.Add(_player1);
             collideables.Add(_player2);
+            collideables.Add(_puck);
             _collisionManager = new CollisionManager(this, collideables);
 
             this.Components.Add(_player1);

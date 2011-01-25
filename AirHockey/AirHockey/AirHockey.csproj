@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AirHockeyGame.cs" />
+    <Compile Include="BaseGamePiece.cs" />
     <Compile Include="Library\Vector2Extensions.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="Pitch.cs" />

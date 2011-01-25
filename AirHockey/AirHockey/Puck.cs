@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using CollisionLib;
 
 
 namespace AirHockey
@@ -15,7 +16,7 @@ namespace AirHockey
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Puck : DrawableGameComponent
+    public class Puck : BaseGamePiece
     {
         public Puck(Game game)
             : base(game)
@@ -29,13 +30,12 @@ namespace AirHockey
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
-
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            base.LoadTexture("Puck");
             base.LoadContent();
         }
 
@@ -45,8 +45,6 @@ namespace AirHockey
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-
             base.Update(gameTime);
         }
 
