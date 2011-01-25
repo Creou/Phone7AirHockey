@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
+using CollisionLib;
+using System.Collections.ObjectModel;
 
 namespace AirHockey
 {
@@ -55,21 +57,24 @@ namespace AirHockey
         private float _p2ScoreOpacity = 0.8f;
 
         private Vector2 _puckPosition;
-        private Vector2 _player1Position;
-        private Vector2 _player2Position;
+        //private Vector2 _player1Position;
+        //private Vector2 _player2Position;
 
         private Texture2D _puckTexture;
-        private Texture2D _player1Texture;
-        private Texture2D _player2Texture;
+        //private Texture2D _player1Texture;
+        //private Texture2D _player2Texture;
 
-        private Vector2 _player1Velocity;
-        private Vector2 _player2Velocity;
+        //private Vector2 _player1Velocity;
+        //private Vector2 _player2Velocity;
         private Vector2 _puckVelocity;
         private Vector2 _puckFriction;
 
+        private CollisionManager _collisionManager;
+
+        private Player _player1;
+        private Player _player2;
+
         private float _puckScale = 1f;
-        private float _p1Scale = 1f;
-        private float _p2Scale = 1f;
 
         private float _gameOpacity = 0;
 
@@ -101,13 +106,22 @@ namespace AirHockey
             this.Components.Add(menu);
 
             var pitch = new Pitch(this);
-            this.Components.Add(pitch);
-
-            base.Initialize();
+            this.Components.Add(pitch);            
 
             GameMode = AirHockey.GameMode.Menu;
             
             _puckFriction = new Vector2(0.005f, 0.005f);
+
+            _player1 = new Player(this, PlayerNumber.Player1);
+            _player2 = new Player(this, PlayerNumber.Player2);
+
+            var collideables = new Collection<ICollidable>();
+            collideables.Add(_player1);
+            collideables.Add(_player2);
+            _collisionManager = new CollisionManager(this, collideables);
+
+            this.Components.Add(_player1);
+            this.Components.Add(_player2);
 
             _player1ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 - 10, 0);
             _player2ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 + 10, 0);
@@ -115,6 +129,8 @@ namespace AirHockey
             _messageP2Position = new Vector2(GraphicsDevice.Viewport.Width / 2 + 100, GraphicsDevice.Viewport.Height / 2);
 
             InitialiseToNewGameState();
+
+            base.Initialize();
         }
 
         internal void NewGame()
@@ -133,8 +149,10 @@ namespace AirHockey
 
             InitialisePuckToStartingConditions();
 
-            _player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
-            _player2Position = new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2);
+            _player1.SetState(new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2), new Vector2(0, 0));
+            _player2.SetState(new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2), new Vector2(0, 0));
+            //_player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
+            //_player2Position = new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2);
         }
 
         private void InitialisePuckToStartingConditions()
@@ -156,8 +174,8 @@ namespace AirHockey
             _messageFont = Content.Load<SpriteFont>("MessageFont");
 
             _puckTexture = Content.Load<Texture2D>("Puck");
-            _player1Texture = Content.Load<Texture2D>("Player1");
-            _player2Texture = Content.Load<Texture2D>("Player2");
+            //_player1Texture = Content.Load<Texture2D>("Player1");
+            //_player2Texture = Content.Load<Texture2D>("Player2");
 
             _bounceEffects = new List<SoundEffect>();
             _bounceEffects.Add(Content.Load<SoundEffect>("Bounce1"));
@@ -221,13 +239,14 @@ namespace AirHockey
                     }
                 }
 
-                HandlePlayerInput();
+                //HandlePlayerInput();
                 HandlePuckMovement(gameTime);
-                HandlePlayerMovement(gameTime);
+                //HandlePlayerMovement(gameTime);
 
+                _collisionManager.ApplyCollisions();
                 HandlePuckWallCollision();
-                HandlePuckPlayerCollision(_player1Position, _player1Velocity);
-                HandlePuckPlayerCollision(_player2Position, _player2Velocity);
+                //HandlePuckPlayerCollision(_player1Position, _player1Velocity);
+                //HandlePuckPlayerCollision(_player2Position, _player2Velocity);
 
                 ApplyPuckFriction();
 
@@ -289,66 +308,66 @@ namespace AirHockey
             _gameOverTime = gameTime.TotalGameTime;
         }
 
-        private void HandlePuckPlayerCollision(Vector2 playerPosition, Vector2 playerVelocity)
-        {
-            if (!_gameOver)
-            {
-                Vector2 distanceToPlayer = (_puckPosition - playerPosition);
+        //private void HandlePuckPlayerCollision(Vector2 playerPosition, Vector2 playerVelocity)
+        //{
+        //    if (!_gameOver)
+        //    {
+        //        Vector2 distanceToPlayer = (_puckPosition - playerPosition);
 
-                float collisionDistance = (_player1Texture.Width / 2f) + (_puckTexture.Width / 2f);
+        //        float collisionDistance = (_player1Texture.Width / 2f) + (_puckTexture.Width / 2f);
 
-                if (distanceToPlayer.Length() < collisionDistance)
-                {
-                    PlayPuckCollisionEffect();
+        //        if (distanceToPlayer.Length() < collisionDistance)
+        //        {
+        //            PlayPuckCollisionEffect();
 
-                    // First move the puck out to the collision point. 
-                    // (This is because sometimes the collision doesn't get
-                    // processed until after the puck has moved inside the 
-                    // player, so what we do is wind back to the point of 
-                    // contact.)
-                    Vector2 normalizedCollisionVector = distanceToPlayer;
-                    normalizedCollisionVector.Normalize();
-                    _puckPosition = playerPosition + (normalizedCollisionVector * collisionDistance);
+        //            // First move the puck out to the collision point. 
+        //            // (This is because sometimes the collision doesn't get
+        //            // processed until after the puck has moved inside the 
+        //            // player, so what we do is wind back to the point of 
+        //            // contact.)
+        //            Vector2 normalizedCollisionVector = distanceToPlayer;
+        //            normalizedCollisionVector.Normalize();
+        //            _puckPosition = playerPosition + (normalizedCollisionVector * collisionDistance);
 
-                    // Calculate the tangent and normals of the collision plane.
-                    Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
-                    collisionNormalVector.Normalize();
+        //            // Calculate the tangent and normals of the collision plane.
+        //            Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
+        //            collisionNormalVector.Normalize();
 
-                    Vector2 collisionTangentVector = new Vector2(-collisionNormalVector.Y, collisionNormalVector.X);
+        //            Vector2 collisionTangentVector = new Vector2(-collisionNormalVector.Y, collisionNormalVector.X);
 
-                    // Calculate prior velocities relative the the collision plane's tangent and normal.
-                    float velPuckNormal = Vector2.Dot(collisionNormalVector, _puckVelocity);
-                    float velPuckTangent = Vector2.Dot(collisionTangentVector, _puckVelocity);
-                    float velPlayerNormal = Vector2.Dot(collisionNormalVector, playerVelocity);
-                    float velPlayerTangent = Vector2.Dot(collisionTangentVector, playerVelocity);
+        //            // Calculate prior velocities relative the the collision plane's tangent and normal.
+        //            float velPuckNormal = Vector2.Dot(collisionNormalVector, _puckVelocity);
+        //            float velPuckTangent = Vector2.Dot(collisionTangentVector, _puckVelocity);
+        //            float velPlayerNormal = Vector2.Dot(collisionNormalVector, playerVelocity);
+        //            float velPlayerTangent = Vector2.Dot(collisionTangentVector, playerVelocity);
 
-                    float velPuckTangent_After = velPuckTangent;
-                    float velPlayerTangen_After = velPlayerTangent;
+        //            float velPuckTangent_After = velPuckTangent;
+        //            float velPlayerTangen_After = velPlayerTangent;
 
-                    float puckMass = 1;
-                    float playerMass = 1000;
+        //            float puckMass = 1;
+        //            float playerMass = 1000;
 
-                    float velPuckNormal_After = ((velPuckNormal * (puckMass - playerMass)) + (2 * playerMass * velPlayerNormal)) / (puckMass + playerMass);
-                    float velPlayerNormal_After = ((velPlayerNormal * (playerMass - puckMass)) + (2 * puckMass * velPuckNormal)) / (puckMass + playerMass);
-                    //float v2n_a =
+        //            float velPuckNormal_After = ((velPuckNormal * (puckMass - playerMass)) + (2 * playerMass * velPlayerNormal)) / (puckMass + playerMass);
+        //            float velPlayerNormal_After = ((velPlayerNormal * (playerMass - puckMass)) + (2 * puckMass * velPuckNormal)) / (puckMass + playerMass);
+        //            //float v2n_a =
 
-                    Vector2 vec_velPuckNormal_After = velPuckNormal_After * collisionNormalVector;
-                    Vector2 vec_velPuckTangent_After = velPuckTangent_After * collisionTangentVector;
-                    Vector2 vec_velPlayerNormal_After = velPlayerNormal_After * collisionNormalVector;
-                    Vector2 vec_velPlayerTangen_After = velPlayerTangen_After * collisionTangentVector;
+        //            Vector2 vec_velPuckNormal_After = velPuckNormal_After * collisionNormalVector;
+        //            Vector2 vec_velPuckTangent_After = velPuckTangent_After * collisionTangentVector;
+        //            Vector2 vec_velPlayerNormal_After = velPlayerNormal_After * collisionNormalVector;
+        //            Vector2 vec_velPlayerTangen_After = velPlayerTangen_After * collisionTangentVector;
 
-                    Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
-                    Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
+        //            Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
+        //            Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
 
-                    // Restrict the puck velocity to a max.
-                    if (vec_velPlayer_After.Length() > 1) 
-                    {
-                        vec_velPuck_After.Normalize();
-                    }
-                    _puckVelocity = vec_velPuck_After;
-                }
-            }
-        }
+        //            // Restrict the puck velocity to a max.
+        //            if (vec_velPlayer_After.Length() > 1) 
+        //            {
+        //                vec_velPuck_After.Normalize();
+        //            }
+        //            _puckVelocity = vec_velPuck_After;
+        //        }
+        //    }
+        //}
 
         private void HandlePuckMovement(GameTime gameTime)
         {
@@ -356,14 +375,7 @@ namespace AirHockey
             _puckPosition.Y = (float)(_puckPosition.Y + (_puckVelocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
         }
 
-        private void HandlePlayerMovement(GameTime gameTime)
-        {
-            _player1Position.X = (float)(_player1Position.X + (_player1Velocity.X * gameTime.ElapsedGameTime.TotalMilliseconds));
-            _player1Position.Y = (float)(_player1Position.Y + (_player1Velocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
 
-            _player2Position.X = (float)(_player2Position.X + (_player2Velocity.X * gameTime.ElapsedGameTime.TotalMilliseconds));
-            _player2Position.Y = (float)(_player2Position.Y + (_player2Velocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
-        }
 
         private void HandlePuckWallCollision()
         {
@@ -466,34 +478,34 @@ namespace AirHockey
             }
         }
 
-        private void HandlePlayerInput()
-        {
-            TouchCollection touchCollection = TouchPanel.GetState();
+        //private void HandlePlayerInput()
+        //{
+        //    TouchCollection touchCollection = TouchPanel.GetState();
 
-            _player1Velocity = Vector2.Zero;
-            _player2Velocity = Vector2.Zero;
-            foreach (TouchLocation touchLoc in touchCollection)
-            {
-                if ((touchLoc.State == TouchLocationState.Pressed) || (touchLoc.State == TouchLocationState.Moved))
-                {
+        //    _player1Velocity = Vector2.Zero;
+        //    _player2Velocity = Vector2.Zero;
+        //    foreach (TouchLocation touchLoc in touchCollection)
+        //    {
+        //        if ((touchLoc.State == TouchLocationState.Pressed) || (touchLoc.State == TouchLocationState.Moved))
+        //        {
 
-                    if (touchLoc.Position.X < 400)
-                    {
-                        _player1Velocity = touchLoc.Position - _player1Position;
-                        _player1Velocity = _player1Velocity * 0.01f;
+        //            if (touchLoc.Position.X < 400)
+        //            {
+        //                _player1Velocity = touchLoc.Position - _player1Position;
+        //                _player1Velocity = _player1Velocity * 0.01f;
 
-                        _player1Velocity = RestrictMaxPlayerVelocity(_player1Velocity);
-                    }
-                    else
-                    {
-                        _player2Velocity = touchLoc.Position - _player2Position;
-                        _player2Velocity = _player2Velocity * 0.01f;
+        //                _player1Velocity = RestrictMaxPlayerVelocity(_player1Velocity);
+        //            }
+        //            else
+        //            {
+        //                _player2Velocity = touchLoc.Position - _player2Position;
+        //                _player2Velocity = _player2Velocity * 0.01f;
 
-                        _player2Velocity = RestrictMaxPlayerVelocity(_player2Velocity);
-                    }
-                }
-            }
-        }
+        //                _player2Velocity = RestrictMaxPlayerVelocity(_player2Velocity);
+        //            }
+        //        }
+        //    }
+        //}
 
         private Vector2 RestrictMaxPlayerVelocity(Vector2 playerVelocity)
         {
@@ -520,7 +532,7 @@ namespace AirHockey
             {
                 _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
-                DrawPlayers();
+                //DrawPlayers();
                 DrawPuck();
                 DrawScores();
                 DrawMessages();
@@ -567,12 +579,6 @@ namespace AirHockey
         private void DrawPuck()
         {
             _spriteBatch.Draw(_puckTexture, _puckPosition, null, Color.White * _gameOpacity, 0, new Vector2(_puckTexture.Width / 2, _puckTexture.Height / 2), _puckScale, SpriteEffects.None, 0);            
-        }
-
-        private void DrawPlayers()
-        {
-            _spriteBatch.Draw(_player1Texture, _player1Position, null, Color.White * _gameOpacity, 0, new Vector2(_player1Texture.Width / 2, _player1Texture.Height / 2), _p1Scale, SpriteEffects.None, 0);
-            _spriteBatch.Draw(_player2Texture, _player2Position, null, Color.White * _gameOpacity, 0, new Vector2(_player2Texture.Width / 2, _player2Texture.Height / 2), _p2Scale, SpriteEffects.None, 0);
         }
     }
 }

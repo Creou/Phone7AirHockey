@@ -89,7 +89,13 @@
     <Compile Include="Library\Vector2Extensions.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="Pitch.cs" />
+    <Compile Include="Player.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Puck.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -111,6 +117,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Programs\CollisionDetectionDemo\CollisionLibPhone\CollisionLibPhone.csproj">
+      <Project>{C846F214-701D-4F78-81C1-ED7A66C26DA8}</Project>
+      <Name>CollisionLibPhone</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AirHockeyContent\AirHockeyContent.contentproj">
       <Project>{80356985-8947-4029-B1BE-18FA18FEE1DC}</Project>
       <Name>AirHockeyContent %28Content%29</Name>
