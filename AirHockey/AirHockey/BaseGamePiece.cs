@@ -14,6 +14,7 @@ namespace AirHockey
         private Vector2 _position;
         private Vector2 _velocity;
         private float _scale = 1f;
+        private Vector2 _friction;
 
         private SpriteBatch _spriteBatch;
 
@@ -23,6 +24,13 @@ namespace AirHockey
             : base(game)
         {
             _game = (AirHockeyGame)game;
+        }
+
+        public override void Initialize()
+        {
+            _friction = new Vector2(0.005f, 0.005f);
+
+            base.Initialize();
         }
 
         protected override void LoadContent()

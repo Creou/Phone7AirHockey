@@ -36,6 +36,7 @@ namespace AirHockey
         protected override void LoadContent()
         {
             base.LoadTexture("Puck");
+
             base.LoadContent();
         }
 

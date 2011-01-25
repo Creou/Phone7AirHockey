@@ -56,18 +56,18 @@ namespace AirHockey
         private int _player2Score;
         private float _p2ScoreOpacity = 0.8f;
 
-        private Vector2 _puckPosition;
+        //private Vector2 _puckPosition;
         //private Vector2 _player1Position;
         //private Vector2 _player2Position;
 
-        private Texture2D _puckTexture;
+        //private Texture2D _puckTexture;
         //private Texture2D _player1Texture;
         //private Texture2D _player2Texture;
 
         //private Vector2 _player1Velocity;
         //private Vector2 _player2Velocity;
-        private Vector2 _puckVelocity;
-        private Vector2 _puckFriction;
+        //private Vector2 _puckVelocity;
+        //private Vector2 _puckFriction;
 
         private CollisionManager _collisionManager;
 
@@ -111,8 +111,6 @@ namespace AirHockey
 
             GameMode = AirHockey.GameMode.Menu;
             
-            _puckFriction = new Vector2(0.005f, 0.005f);
-
             _player1 = new Player(this, PlayerNumber.Player1);
             _player2 = new Player(this, PlayerNumber.Player2);
             _puck = new Puck(this);
@@ -125,6 +123,7 @@ namespace AirHockey
 
             this.Components.Add(_player1);
             this.Components.Add(_player2);
+            this.Components.Add(_puck);
 
             _player1ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 - 10, 0);
             _player2ScorePosition = new Vector2(GraphicsDevice.Viewport.Width / 2 + 10, 0);
@@ -152,16 +151,15 @@ namespace AirHockey
 
             InitialisePuckToStartingConditions();
 
-            _player1.SetState(new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2), new Vector2(0, 0));
-            _player2.SetState(new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2), new Vector2(0, 0));
+            _player1.SetState(new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2), Vector2.Zero);
+            _player2.SetState(new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2), Vector2.Zero);
             //_player1Position = new Vector2(GraphicsDevice.Viewport.Width / 4, GraphicsDevice.Viewport.Height / 2);
             //_player2Position = new Vector2((GraphicsDevice.Viewport.Width / 4) * 3, GraphicsDevice.Viewport.Height / 2);
         }
 
         private void InitialisePuckToStartingConditions()
         {
-            _puckVelocity = Vector2.Zero;   
-            _puckPosition = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            _puck.SetState(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2),  Vector2.Zero);
         }
 
         /// <summary>
@@ -176,7 +174,7 @@ namespace AirHockey
             _scoreFont = Content.Load<SpriteFont>("ScoreFont");
             _messageFont = Content.Load<SpriteFont>("MessageFont");
 
-            _puckTexture = Content.Load<Texture2D>("Puck");
+            //_puckTexture = Content.Load<Texture2D>("Puck");
             //_player1Texture = Content.Load<Texture2D>("Player1");
             //_player2Texture = Content.Load<Texture2D>("Player2");
 
@@ -243,15 +241,15 @@ namespace AirHockey
                 }
 
                 //HandlePlayerInput();
-                HandlePuckMovement(gameTime);
+                //HandlePuckMovement(gameTime);
                 //HandlePlayerMovement(gameTime);
 
                 _collisionManager.ApplyCollisions();
-                HandlePuckWallCollision();
+                //HandlePuckWallCollision();
                 //HandlePuckPlayerCollision(_player1Position, _player1Velocity);
                 //HandlePuckPlayerCollision(_player2Position, _player2Velocity);
 
-                ApplyPuckFriction();
+                //ApplyPuckFriction();
 
                 if (_messageOpacity > 0)
                 {
@@ -372,58 +370,58 @@ namespace AirHockey
         //    }
         //}
 
-        private void HandlePuckMovement(GameTime gameTime)
-        {
-            _puckPosition.X = (float)(_puckPosition.X + (_puckVelocity.X * gameTime.ElapsedGameTime.TotalMilliseconds));
-            _puckPosition.Y = (float)(_puckPosition.Y + (_puckVelocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
-        }
+        //private void HandlePuckMovement(GameTime gameTime)
+        //{
+        //    _puckPosition.X = (float)(_puckPosition.X + (_puckVelocity.X * gameTime.ElapsedGameTime.TotalMilliseconds));
+        //    _puckPosition.Y = (float)(_puckPosition.Y + (_puckVelocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
+        //}
 
 
 
-        private void HandlePuckWallCollision()
-        {
-            int goalWidth = (GraphicsDevice.Viewport.Height / 2);
-            int goalCentre = (GraphicsDevice.Viewport.Height / 2);
-            int goalLeft = goalCentre - (goalWidth/2);
-            int goalRight = goalCentre + (goalWidth / 2);
-            int realativeGoalLeft = goalLeft + (_puckTexture.Width / 2);
-            int realativeGoalRight = goalRight - (_puckTexture.Width / 2);
+        //private void HandlePuckWallCollision()
+        //{
+        //    int goalWidth = (GraphicsDevice.Viewport.Height / 2);
+        //    int goalCentre = (GraphicsDevice.Viewport.Height / 2);
+        //    int goalLeft = goalCentre - (goalWidth/2);
+        //    int goalRight = goalCentre + (goalWidth / 2);
+        //    int realativeGoalLeft = goalLeft + (_puckTexture.Width / 2);
+        //    int realativeGoalRight = goalRight - (_puckTexture.Width / 2);
 
-            if (_puckPosition.Y > (GraphicsDevice.Viewport.Height - (_puckTexture.Height / 2)) && _puckVelocity.Y > 0)
-            {
-                PlayPuckCollisionEffect();
-                _puckVelocity.Y *= -1;
-            }
-            if (_puckPosition.Y < 0 + (_puckTexture.Height / 2) && _puckVelocity.Y < 0)
-            {
-                PlayPuckCollisionEffect();
-                _puckVelocity.Y *= -1;
-            }
-            if (_puckPosition.X > (GraphicsDevice.Viewport.Width - (_puckTexture.Width / 2)) && _puckVelocity.X > 0)
-            {
-                if (_puckPosition.Y > realativeGoalLeft && _puckPosition.Y < realativeGoalRight)
-                {
-                    GoalScored(ActionPlayer.Player1);
-                }
-                else
-                {
-                    PlayPuckCollisionEffect();
-                    _puckVelocity.X *= -1;
-                }
-            }
-            if (_puckPosition.X < 0 + (_puckTexture.Width / 2) && _puckVelocity.X < 0)
-            {
-                if (_puckPosition.Y > realativeGoalLeft && _puckPosition.Y < realativeGoalRight)
-                {
-                    GoalScored(ActionPlayer.Player2);
-                }
-                else
-                {
-                    PlayPuckCollisionEffect();
-                    _puckVelocity.X *= -1;
-                }
-            }
-        }
+        //    if (_puckPosition.Y > (GraphicsDevice.Viewport.Height - (_puckTexture.Height / 2)) && _puckVelocity.Y > 0)
+        //    {
+        //        PlayPuckCollisionEffect();
+        //        _puckVelocity.Y *= -1;
+        //    }
+        //    if (_puckPosition.Y < 0 + (_puckTexture.Height / 2) && _puckVelocity.Y < 0)
+        //    {
+        //        PlayPuckCollisionEffect();
+        //        _puckVelocity.Y *= -1;
+        //    }
+        //    if (_puckPosition.X > (GraphicsDevice.Viewport.Width - (_puckTexture.Width / 2)) && _puckVelocity.X > 0)
+        //    {
+        //        if (_puckPosition.Y > realativeGoalLeft && _puckPosition.Y < realativeGoalRight)
+        //        {
+        //            GoalScored(ActionPlayer.Player1);
+        //        }
+        //        else
+        //        {
+        //            PlayPuckCollisionEffect();
+        //            _puckVelocity.X *= -1;
+        //        }
+        //    }
+        //    if (_puckPosition.X < 0 + (_puckTexture.Width / 2) && _puckVelocity.X < 0)
+        //    {
+        //        if (_puckPosition.Y > realativeGoalLeft && _puckPosition.Y < realativeGoalRight)
+        //        {
+        //            GoalScored(ActionPlayer.Player2);
+        //        }
+        //        else
+        //        {
+        //            PlayPuckCollisionEffect();
+        //            _puckVelocity.X *= -1;
+        //        }
+        //    }
+        //}
 
         private void PlayPuckCollisionEffect()
         {
@@ -460,26 +458,26 @@ namespace AirHockey
             InitialisePuckToStartingConditions();
         }
 
-        private void ApplyPuckFriction()
-        {
-            if (_puckVelocity.X < 0)
-            {
-                _puckVelocity.X += _puckFriction.X;
-            }
-            else if (_puckVelocity.X > 0)
-            {
-                _puckVelocity.X -= _puckFriction.X;
-            }
+        //private void ApplyPuckFriction()
+        //{
+        //    if (_puckVelocity.X < 0)
+        //    {
+        //        _puckVelocity.X += _puckFriction.X;
+        //    }
+        //    else if (_puckVelocity.X > 0)
+        //    {
+        //        _puckVelocity.X -= _puckFriction.X;
+        //    }
 
-            if (_puckVelocity.Y < 0)
-            {
-                _puckVelocity.Y += _puckFriction.Y;
-            }
-            else if (_puckVelocity.Y > 0)
-            {
-                _puckVelocity.Y -= _puckFriction.Y;
-            }
-        }
+        //    if (_puckVelocity.Y < 0)
+        //    {
+        //        _puckVelocity.Y += _puckFriction.Y;
+        //    }
+        //    else if (_puckVelocity.Y > 0)
+        //    {
+        //        _puckVelocity.Y -= _puckFriction.Y;
+        //    }
+        //}
 
         //private void HandlePlayerInput()
         //{
@@ -536,7 +534,7 @@ namespace AirHockey
                 _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
                 //DrawPlayers();
-                DrawPuck();
+                //DrawPuck();
                 DrawScores();
                 DrawMessages();
 
@@ -579,9 +577,9 @@ namespace AirHockey
             _spriteBatch.DrawString(_scoreFont, _player2Score.ToString(), _player2ScorePosition, Color.White * _p2ScoreOpacity * _gameOpacity);            
         }
 
-        private void DrawPuck()
-        {
-            _spriteBatch.Draw(_puckTexture, _puckPosition, null, Color.White * _gameOpacity, 0, new Vector2(_puckTexture.Width / 2, _puckTexture.Height / 2), _puckScale, SpriteEffects.None, 0);            
-        }
+        //private void DrawPuck()
+        //{
+        //    _spriteBatch.Draw(_puckTexture, _puckPosition, null, Color.White * _gameOpacity, 0, new Vector2(_puckTexture.Width / 2, _puckTexture.Height / 2), _puckScale, SpriteEffects.None, 0);            
+        //}
     }
 }
