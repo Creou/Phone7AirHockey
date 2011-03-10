@@ -244,7 +244,7 @@ namespace AirHockey
                 //HandlePuckMovement(gameTime);
                 //HandlePlayerMovement(gameTime);
 
-                _collisionManager.ApplyCollisions();
+                _collisionManager.ApplyCollisions(gameTime.ElapsedGameTime);
                 //HandlePuckWallCollision();
                 //HandlePuckPlayerCollision(_player1Position, _player1Velocity);
                 //HandlePuckPlayerCollision(_player2Position, _player2Velocity);

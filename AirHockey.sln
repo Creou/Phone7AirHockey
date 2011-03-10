@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirHockey", "AirHockey\AirH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirHockeyContent", "AirHockey\AirHockeyContent\AirHockeyContent.contentproj", "{80356985-8947-4029-B1BE-18FA18FEE1DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollisionLibPhone", "..\..\Programs\CollisionDetectionDemo\CollisionLibPhone\CollisionLibPhone.csproj", "{C846F214-701D-4F78-81C1-ED7A66C26DA8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -39,16 +37,6 @@ Global
 		{80356985-8947-4029-B1BE-18FA18FEE1DC}.Release|Mixed Platforms.ActiveCfg = Release|Windows Phone
 		{80356985-8947-4029-B1BE-18FA18FEE1DC}.Release|Windows Phone.ActiveCfg = Release|Windows Phone
 		{80356985-8947-4029-B1BE-18FA18FEE1DC}.Release|x86.ActiveCfg = Release|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Debug|Mixed Platforms.ActiveCfg = Debug|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Debug|Mixed Platforms.Build.0 = Debug|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Debug|Windows Phone.ActiveCfg = Debug|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Debug|Windows Phone.Build.0 = Debug|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Debug|x86.ActiveCfg = Debug|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Release|Mixed Platforms.ActiveCfg = Release|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Release|Mixed Platforms.Build.0 = Release|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Release|Windows Phone.ActiveCfg = Release|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Release|Windows Phone.Build.0 = Release|Windows Phone
-		{C846F214-701D-4F78-81C1-ED7A66C26DA8}.Release|x86.ActiveCfg = Release|Windows Phone
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

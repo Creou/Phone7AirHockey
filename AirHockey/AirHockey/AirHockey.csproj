@@ -50,6 +50,9 @@
     <XnaCompressContent>false</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CollisionLibWP7">
+      <HintPath>..\..\..\CollisionLib\CollisionLibWP7\bin\Windows Phone\Debug\CollisionLibWP7.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework">
       <Private>False</Private>
     </Reference>
@@ -118,10 +121,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Programs\CollisionDetectionDemo\CollisionLibPhone\CollisionLibPhone.csproj">
-      <Project>{C846F214-701D-4F78-81C1-ED7A66C26DA8}</Project>
-      <Name>CollisionLibPhone</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AirHockeyContent\AirHockeyContent.contentproj">
       <Project>{80356985-8947-4029-B1BE-18FA18FEE1DC}</Project>
       <Name>AirHockeyContent %28Content%29</Name>
