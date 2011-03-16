@@ -110,9 +110,10 @@ namespace AirHockey
             this.Components.Add(pitch);            
 
             GameMode = AirHockey.GameMode.Menu;
-            
-            _player1 = new Player(this, PlayerNumber.Player1);
-            _player2 = new Player(this, PlayerNumber.Player2);
+
+            PlayerTouchBinder binder = new PlayerTouchBinder();
+            _player1 = new Player(this, PlayerNumber.Player1, binder);
+            _player2 = new Player(this, PlayerNumber.Player2, binder);
             _puck = new Puck(this);
 
             var collideables = new Collection<ICollidable>();
