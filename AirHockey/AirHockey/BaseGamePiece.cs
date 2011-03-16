@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AirHockey
 {
-    public class BaseGamePiece : DrawableGameComponent, ICollidableCircle
+    public abstract class BaseGamePiece : DrawableGameComponent, ICollidableCircle
     {
         private Texture2D _texture;
         private Vector2 _position;
@@ -19,6 +19,8 @@ namespace AirHockey
         private SpriteBatch _spriteBatch;
 
         private AirHockeyGame _game;
+
+        public abstract float Mass { get; }
 
         public BaseGamePiece(Game game)
             : base(game)
@@ -44,6 +46,7 @@ namespace AirHockey
         {
             _texture = this.Game.Content.Load<Texture2D>(textureName);
         }
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
@@ -83,6 +86,16 @@ namespace AirHockey
         public float Diameter
         {
             get { return _texture.Width; }
+        }
+
+        public void SetPosition(Vector2 newPosition)
+        {
+            SetState(newPosition, _velocity);
+        }
+
+        public void SetVelocity(Vector2 newVelocity)
+        {
+            SetState(Position, newVelocity);
         }
 
         public void SetState(Vector2 position, Vector2 velocity)

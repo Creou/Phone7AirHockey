@@ -479,48 +479,6 @@ namespace AirHockey
         //    }
         //}
 
-        //private void HandlePlayerInput()
-        //{
-        //    TouchCollection touchCollection = TouchPanel.GetState();
-
-        //    _player1Velocity = Vector2.Zero;
-        //    _player2Velocity = Vector2.Zero;
-        //    foreach (TouchLocation touchLoc in touchCollection)
-        //    {
-        //        if ((touchLoc.State == TouchLocationState.Pressed) || (touchLoc.State == TouchLocationState.Moved))
-        //        {
-
-        //            if (touchLoc.Position.X < 400)
-        //            {
-        //                _player1Velocity = touchLoc.Position - _player1Position;
-        //                _player1Velocity = _player1Velocity * 0.01f;
-
-        //                _player1Velocity = RestrictMaxPlayerVelocity(_player1Velocity);
-        //            }
-        //            else
-        //            {
-        //                _player2Velocity = touchLoc.Position - _player2Position;
-        //                _player2Velocity = _player2Velocity * 0.01f;
-
-        //                _player2Velocity = RestrictMaxPlayerVelocity(_player2Velocity);
-        //            }
-        //        }
-        //    }
-        //}
-
-        private Vector2 RestrictMaxPlayerVelocity(Vector2 playerVelocity)
-        {
-            if (playerVelocity.Length() > 1)
-            {
-                playerVelocity.Normalize();
-                return playerVelocity;
-            }
-            else 
-            {
-                return playerVelocity;
-            }
-        }
-
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
