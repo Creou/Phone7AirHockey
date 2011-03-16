@@ -69,12 +69,12 @@ namespace AirHockey
 
         public override void Draw(GameTime gameTime)
         {
-            DrawPlayer();
+            DrawPeice();
 
             base.Draw(gameTime);
         }
 
-        private void DrawPlayer()
+        private void DrawPeice()
         {
             _spriteBatch.Begin();
 
