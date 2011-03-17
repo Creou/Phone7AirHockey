@@ -15,43 +15,6 @@ using System.Diagnostics;
 
 namespace AirHockey
 {
-    public class PlayerTouchBinder
-    {
-        private Dictionary<int, PlayerNumber> _boundTouchPoints;
-
-        public PlayerTouchBinder()
-        {
-            _boundTouchPoints = new Dictionary<int, PlayerNumber>();
-        }
-
-        public void ReleasePoint(int touchPoint)
-        {
-            _boundTouchPoints.Remove(touchPoint);
-        }
-
-        public bool IsTouchPointBoundToPlayer(int touchPoint, PlayerNumber player)
-        {
-            PlayerNumber boundPlayer;
-            if (_boundTouchPoints.TryGetValue(touchPoint, out boundPlayer))
-            {
-                return boundPlayer == player;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool IsTouchPointBound(int touchPoint)
-        {
-            return _boundTouchPoints.ContainsKey(touchPoint);
-        }
-
-        internal void Bind(int touchPoint, PlayerNumber player)
-        {
-            _boundTouchPoints.Add(touchPoint, player);
-        }
-    }
-
     public enum PlayerNumber
     {
         Player1 = 1,
@@ -110,8 +73,6 @@ namespace AirHockey
             base.Update(gameTime);
         }
 
-        //private int _boundTouchId;
-
         private void HandlePlayerInput()
         {
             TouchCollection touchCollection = TouchPanel.GetState();
@@ -122,7 +83,7 @@ namespace AirHockey
                 {
                     if (touchLoc.State == TouchLocationState.Released)
                     {
-                        _touchBinder.ReleasePoint(touchLoc.Id);
+                        _touchBinder.Release(touchLoc.Id);
                         //_boundTouchId = -1;
                     }
                     else if (touchLoc.State == TouchLocationState.Moved)
