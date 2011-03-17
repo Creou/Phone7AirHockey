@@ -241,10 +241,6 @@ namespace AirHockey
                     }
                 }
 
-                //HandlePlayerInput();
-                //HandlePuckMovement(gameTime);
-                //HandlePlayerMovement(gameTime);
-
                 _collisionManager.ApplyCollisions(gameTime.ElapsedGameTime);
                 //HandlePuckWallCollision();
                 //HandlePuckPlayerCollision(_player1Position, _player1Velocity);
@@ -309,75 +305,6 @@ namespace AirHockey
             _gameOver = true;
             _gameOverTime = gameTime.TotalGameTime;
         }
-
-        //private void HandlePuckPlayerCollision(Vector2 playerPosition, Vector2 playerVelocity)
-        //{
-        //    if (!_gameOver)
-        //    {
-        //        Vector2 distanceToPlayer = (_puckPosition - playerPosition);
-
-        //        float collisionDistance = (_player1Texture.Width / 2f) + (_puckTexture.Width / 2f);
-
-        //        if (distanceToPlayer.Length() < collisionDistance)
-        //        {
-        //            PlayPuckCollisionEffect();
-
-        //            // First move the puck out to the collision point. 
-        //            // (This is because sometimes the collision doesn't get
-        //            // processed until after the puck has moved inside the 
-        //            // player, so what we do is wind back to the point of 
-        //            // contact.)
-        //            Vector2 normalizedCollisionVector = distanceToPlayer;
-        //            normalizedCollisionVector.Normalize();
-        //            _puckPosition = playerPosition + (normalizedCollisionVector * collisionDistance);
-
-        //            // Calculate the tangent and normals of the collision plane.
-        //            Vector2 collisionNormalVector = new Vector2(playerPosition.X - _puckPosition.X, playerPosition.Y - _puckPosition.Y);
-        //            collisionNormalVector.Normalize();
-
-        //            Vector2 collisionTangentVector = new Vector2(-collisionNormalVector.Y, collisionNormalVector.X);
-
-        //            // Calculate prior velocities relative the the collision plane's tangent and normal.
-        //            float velPuckNormal = Vector2.Dot(collisionNormalVector, _puckVelocity);
-        //            float velPuckTangent = Vector2.Dot(collisionTangentVector, _puckVelocity);
-        //            float velPlayerNormal = Vector2.Dot(collisionNormalVector, playerVelocity);
-        //            float velPlayerTangent = Vector2.Dot(collisionTangentVector, playerVelocity);
-
-        //            float velPuckTangent_After = velPuckTangent;
-        //            float velPlayerTangen_After = velPlayerTangent;
-
-        //            float puckMass = 1;
-        //            float playerMass = 1000;
-
-        //            float velPuckNormal_After = ((velPuckNormal * (puckMass - playerMass)) + (2 * playerMass * velPlayerNormal)) / (puckMass + playerMass);
-        //            float velPlayerNormal_After = ((velPlayerNormal * (playerMass - puckMass)) + (2 * puckMass * velPuckNormal)) / (puckMass + playerMass);
-        //            //float v2n_a =
-
-        //            Vector2 vec_velPuckNormal_After = velPuckNormal_After * collisionNormalVector;
-        //            Vector2 vec_velPuckTangent_After = velPuckTangent_After * collisionTangentVector;
-        //            Vector2 vec_velPlayerNormal_After = velPlayerNormal_After * collisionNormalVector;
-        //            Vector2 vec_velPlayerTangen_After = velPlayerTangen_After * collisionTangentVector;
-
-        //            Vector2 vec_velPuck_After = vec_velPuckNormal_After + vec_velPuckTangent_After;
-        //            Vector2 vec_velPlayer_After = vec_velPlayerNormal_After + vec_velPlayerTangen_After;
-
-        //            // Restrict the puck velocity to a max.
-        //            if (vec_velPlayer_After.Length() > 1) 
-        //            {
-        //                vec_velPuck_After.Normalize();
-        //            }
-        //            _puckVelocity = vec_velPuck_After;
-        //        }
-        //    }
-        //}
-
-        //private void HandlePuckMovement(GameTime gameTime)
-        //{
-        //    _puckPosition.X = (float)(_puckPosition.X + (_puckVelocity.X * gameTime.ElapsedGameTime.TotalMilliseconds));
-        //    _puckPosition.Y = (float)(_puckPosition.Y + (_puckVelocity.Y * gameTime.ElapsedGameTime.TotalMilliseconds));
-        //}
-
-
 
         //private void HandlePuckWallCollision()
         //{

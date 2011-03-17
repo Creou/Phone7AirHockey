@@ -79,15 +79,18 @@ namespace AirHockey
 
             foreach (TouchLocation touchLoc in touchCollection)
             {
-                if (_touchBinder.IsTouchPointBound(touchLoc.Id) && _touchBinder.IsTouchPointBoundToPlayer(touchLoc.Id, _playerNumber))
+                if (_touchBinder.IsTouchPointBoundToPlayer(touchLoc.Id, _playerNumber))
                 {
                     if (touchLoc.State == TouchLocationState.Released)
                     {
+                        // If the touch point is released we need to unbind it from the player it was bound to.
                         _touchBinder.Release(touchLoc.Id);
-                        //_boundTouchId = -1;
                     }
                     else if (touchLoc.State == TouchLocationState.Moved)
                     {
+                        // Provided the touch point is bound to this player.
+                        // Calculate the distance between the player and the touch
+                        // location and apply velocity to the player towards the touch point.
                         Vector2 newVelocity = touchLoc.Position - Position;
                         newVelocity = newVelocity * 0.01f;
 
@@ -97,11 +100,13 @@ namespace AirHockey
                 }
                 else if (touchLoc.State == TouchLocationState.Pressed || touchLoc.State == TouchLocationState.Moved)
                 {
-                    if ((touchLoc.Position.X < 400 && _playerNumber == PlayerNumber.Player1) || (touchLoc.Position.X > 400 && _playerNumber == PlayerNumber.Player2))
+                    // Check that the touch point is not already bound to a player.
+                    if (!_touchBinder.IsTouchPointBound(touchLoc.Id))
                     {
-                        // Bind the touch location to this player so in the future this touch point always controls this player.
-                        if (!_touchBinder.IsTouchPointBound(touchLoc.Id))
+                        // Identify if this is the player that owns the area where this touch point has made contact.
+                        if ((touchLoc.Position.X < 400 && _playerNumber == PlayerNumber.Player1) || (touchLoc.Position.X > 400 && _playerNumber == PlayerNumber.Player2))
                         {
+                            // Bind the touch location to this player so in the future this touch point always controls this player.
                             _touchBinder.Bind(touchLoc.Id, _playerNumber);
                         }
                     }

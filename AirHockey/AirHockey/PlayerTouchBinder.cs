@@ -50,7 +50,7 @@ namespace AirHockey
 
         internal void Bind(int touchPointId, PlayerNumber player)
         {
-            var playersTouchPoints = _boundTouchPoints.Where(btp => btp.Value == player);
+            var playersTouchPoints = _boundTouchPoints.Where(btp => btp.Value == player).ToList();
             foreach (var touchPointBinding in playersTouchPoints)
             {
                 _boundTouchPoints.Remove(touchPointBinding.Key);
